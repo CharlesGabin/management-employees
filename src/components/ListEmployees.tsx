@@ -38,7 +38,7 @@ const ListEmployees = ({
 
   const handleSearch = (value: string) => {
     setSearch(value);
-    if (value && employees) {
+    if (value) {
       setEmployees(
         filteredEmployees?.filter((employee) =>
           employee.id.toString().includes(value)
@@ -81,6 +81,7 @@ const ListEmployees = ({
   useEffect(() => {
     if (search) {
       handleSearch(search);
+      console.log(employees);
     } else {
       getEmployees();
     }
@@ -134,27 +135,35 @@ const ListEmployees = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {employees?.map((employee) => (
-              <TableRow
-                key={employee.id}
-                onClick={() => handleRowClick(employee.id)}
-              >
-                <TableCell className="font-medium">{employee.id}</TableCell>
-                <TableCell className="font-medium">{employee.name}</TableCell>
-                <TableCell>{employee.emailId}</TableCell>
-                <TableCell>{employee.mobile}</TableCell>
-                <TableCell className="text-right">{employee.country}</TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    className="inline-flex gap-2 items-center px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700"
-                    onClick={() => deleteEmployee(employee.id)}
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </Button>
-                </TableCell>
+            {employees?.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6}>No Data</TableCell>
               </TableRow>
-            ))}
+            ) : (
+              employees?.map((employee) => (
+                <TableRow
+                  key={employee.id}
+                  onClick={() => handleRowClick(employee.id)}
+                >
+                  <TableCell className="font-medium">{employee.id}</TableCell>
+                  <TableCell className="font-medium">{employee.name}</TableCell>
+                  <TableCell>{employee.emailId}</TableCell>
+                  <TableCell>{employee.mobile}</TableCell>
+                  <TableCell className="text-right">
+                    {employee.country}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      className="inline-flex gap-2 items-center px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700"
+                      onClick={() => deleteEmployee(employee.id)}
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
