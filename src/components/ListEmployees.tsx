@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   Table,
@@ -33,6 +33,22 @@ const ListEmployees = ({
 }: ListEmployeeProps) => {
   const navigate = useNavigate();
 
+  const [search, setSearch] = useState<string | null>(null);
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    if (value && employees) {
+      setEmployees(
+        filteredEmployees?.filter((employee) =>
+          employee.id.toString().includes(value)
+        )
+      );
+    } else {
+      getEmployees();
+    }
+  };
+
   const getEmployees = async () => {
     try {
       const response = await axios.get(
@@ -41,6 +57,7 @@ const ListEmployees = ({
       console.log(response.data);
       setEmployees(response.data);
       setLoading(false);
+      setFilteredEmployees(response.data);
     } catch (error: Error | any) {
       console.log(error);
       setError(error);
@@ -62,6 +79,14 @@ const ListEmployees = ({
   };
 
   useEffect(() => {
+    if (search) {
+      handleSearch(search);
+    } else {
+      getEmployees();
+    }
+  }, [search]);
+
+  useEffect(() => {
     getEmployees();
   }, []);
 
@@ -71,21 +96,30 @@ const ListEmployees = ({
 
   if (loading)
     return <span className="m-auto loading loading-dots loading-sm"></span>;
-  if (error) return <span className="text-red-500">{error.message}</span>;
+  if (error)
+    return <span className="m-auto text-red-500">{error.message}</span>;
 
   return (
-    <div className="m-auto">
+    <div className="flex flex-col gap-5 m-auto">
       <div>
         <h1 className="inline-flex text-3xl font-bold">List of Employees</h1>
       </div>
 
-      <Button className="my-4">
-        <Link to="/addEmployee" className="inline-flex gap-2 items-center">
-          {" "}
-          <CirclePlus size={16} />
-          Add
-        </Link>
-      </Button>
+      <div className="flex gap-4 justify-between items-center px-2">
+        <input
+          type="text"
+          className="px-4 py-2 w-full rounded-md border-2 outline-none focus:border-black"
+          placeholder="Search by ID"
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+        <Button className="my-4">
+          <Link to="/addEmployee" className="inline-flex gap-2 items-center">
+            {" "}
+            <CirclePlus size={16} />
+            Add
+          </Link>
+        </Button>
+      </div>
       <div>
         <Table>
           <TableCaption>A list of your recent employees.</TableCaption>

@@ -5,6 +5,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 import * as Yup from "yup";
 import { useLocation, useNavigate } from "react-router-dom";
 import { COUNTRIES_URL, Employee } from "../lib/utils";
+import { ArrowLeft } from "lucide-react";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
@@ -49,7 +50,10 @@ const AddEmployee = () => {
   }, [location.state]);
 
   return (
-    <main className="flex flex-col gap-5 items-center m-auto w-full shadow">
+    <div className="flex relative flex-col gap-5 items-center m-auto w-full shadow">
+      <Button className="absolute top-2 left-2" onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} />
+      </Button>
       <h1 className="text-3xl font-bold">
         {location.state ? "Edit Employee" : "Add Employee"}
       </h1>
@@ -60,7 +64,6 @@ const AddEmployee = () => {
         validationSchema={validations}
         onSubmit={(values, { setSubmitting }) => {
           setTimeout(async () => {
-            alert(JSON.stringify(values, null, 2));
             employee = { emailId: values.email, ...values };
             console.log(employee);
 
@@ -173,7 +176,7 @@ const AddEmployee = () => {
           </form>
         )}
       </Formik>
-    </main>
+    </div>
   );
 };
 
