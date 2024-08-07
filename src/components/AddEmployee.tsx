@@ -1,138 +1,178 @@
-import { useFormik } from "formik";
+import { Formik } from "formik";
 import { Button } from "./ui/button";
 import axios from "axios";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { COUNTRIES_URL, Employee } from "../lib/utils";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
 
+  const location = useLocation();
+
   let employee: Employee[] = [];
 
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      email: "",
-      avatar: "",
-      mobile: "",
-      country: "",
-      state: "",
-      district: "",
-    },
-    validationSchema: Yup.object({
-      name: Yup.string().required("Required"),
-      avatar: Yup.string().required("Required"),
-      email: Yup.string().email("Invalid email address").required("Required"),
-      mobile: Yup.number().required("Required"),
-      country: Yup.string().required("Required"),
-      state: Yup.string().required("Required"),
-      district: Yup.string().required("Required"),
-    }),
-    onSubmit: async (values) => {
-      console.log(values);
-      employee = { emailId: values.email, ...values };
-      console.log(employee);
-
-      await axios
-        .post(
-          "https://669b3f09276e45187d34eb4e.mockapi.io/api/v1/employee",
-          employee
-        )
-        .then((response) => {
-          console.log(response.data);
-          alert("Employee added successfully");
-          navigate("/");
-          // setEmployees((prev) => [...prev, response.data]);
-        })
-        .catch((error) => {
-          console.log(error);
-          alert(error.message);
-        });
-    },
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    email: "",
+    avatar: "",
+    mobile: "",
+    country: "",
+    state: "",
+    district: "",
   });
+
+  const validations = Yup.object({
+    name: Yup.string().required("Required"),
+    avatar: Yup.string().required("Required"),
+    email: Yup.string().email("Invalid email address").required("Required"),
+    mobile: Yup.string().required("Required"),
+    country: Yup.string().required("Required"),
+    state: Yup.string().required("Required"),
+    district: Yup.string().required("Required"),
+  });
+
+  useEffect(() => {
+    if (location.state) {
+      console.log(location.state.employee);
+      setInitialValues({
+        name: location.state.employee.name,
+        email: location.state.employee.emailId,
+        avatar: location.state.employee.avatar,
+        mobile: location.state.employee.mobile,
+        country: location.state.employee.country,
+        state: location.state.employee.state,
+        district: location.state.employee.district,
+      });
+    }
+  }, [location.state]);
+
   return (
-    <main className="flex flex-col items-center w-full gap-5 m-auto shadow">
-      <h1 className="text-3xl font-bold">Add Employee</h1>
-      <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4 py-8">
-        <DivInputForm
-          labelName="Name"
-          type="text"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.name}
-        />
-        {formik.touched.name && formik.errors.name ? (
-          <div>{formik.errors.name}</div>
-        ) : null}
-        <DivInputForm
-          labelName="Email"
-          type="email"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.email}
-        />
-        {formik.touched.email && formik.errors.email ? (
-          <div>{formik.errors.email}</div>
-        ) : null}
-        <DivInputForm
-          labelName="Avatar"
-          type="text"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.avatar}
-        />
-        {formik.touched.avatar && formik.errors.avatar ? (
-          <div>{formik.errors.avatar}</div>
-        ) : null}
-        <DivInputForm
-          labelName="Mobile"
-          type="phone"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.mobile}
-        />
-        {formik.touched.mobile && formik.errors.mobile ? (
-          <div>{formik.errors.mobile}</div>
-        ) : null}
-        <DivInputForm
-          labelName="Country"
-          type="option"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.country}
-        />
-        {formik.touched.country && formik.errors.country ? (
-          <div>{formik.errors.country}</div>
-        ) : null}
-        <DivInputForm
-          labelName="State"
-          type="text"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.state}
-        />
-        {formik.touched.state && formik.errors.state ? (
-          <div>{formik.errors.state}</div>
-        ) : null}
-        <DivInputForm
-          labelName="District"
-          type="text"
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.district}
-        />
-        {formik.touched.district && formik.errors.district ? (
-          <div>{formik.errors.district}</div>
-        ) : null}
-        <Button
-          type="submit"
-          className="px-4 py-2 my-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
-        >
-          Submit
-        </Button>
-      </form>
+    <main className="flex flex-col gap-5 items-center m-auto w-full shadow">
+      <h1 className="text-3xl font-bold">
+        {location.state ? "Edit Employee" : "Add Employee"}
+      </h1>
+
+      <Formik
+        enableReinitialize
+        initialValues={initialValues}
+        validationSchema={validations}
+        onSubmit={(values, { setSubmitting }) => {
+          setTimeout(async () => {
+            alert(JSON.stringify(values, null, 2));
+            employee = { emailId: values.email, ...values };
+            console.log(employee);
+
+            if (!location.state) {
+              await axios
+                .post(
+                  "https://669b3f09276e45187d34eb4e.mockapi.io/api/v1/employee",
+                  employee
+                )
+                .then((response) => {
+                  console.log(response.data);
+                  alert("Employee added successfully");
+                  navigate("/");
+                  // setEmployees((prev) => [...prev, response.data]);
+                })
+                .catch((error) => {
+                  console.log(error);
+                  alert(error.message);
+                });
+            }
+
+            if (location.state) {
+              await axios
+                .put(
+                  `https://669b3f09276e45187d34eb4e.mockapi.io/api/v1/employee/${location.state.employee.id}`,
+                  employee
+                )
+                .then((response) => {
+                  console.log(response.data);
+                  alert("Employee updated successfully");
+                  navigate(-1);
+                })
+                .catch((error) => {
+                  console.log(error);
+                  alert(error.message);
+                });
+            }
+
+            setSubmitting(false);
+          }, 400);
+        }}
+      >
+        {(formik) => (
+          <form
+            onSubmit={formik.handleSubmit}
+            className="flex flex-col gap-4 py-8"
+          >
+            <DivInputForm
+              labelName="Name"
+              type="text"
+              {...formik.getFieldProps("name")}
+            />
+            {formik.touched.name && formik.errors.name ? (
+              <div>{formik.errors.name}</div>
+            ) : null}
+            <DivInputForm
+              labelName="Email"
+              type="email"
+              {...formik.getFieldProps("email")}
+            />
+            {formik.touched.email && formik.errors.email ? (
+              <div>{formik.errors.email}</div>
+            ) : null}
+            <DivInputForm
+              labelName="Avatar"
+              type="text"
+              {...formik.getFieldProps("avatar")}
+            />
+            {formik.touched.avatar && formik.errors.avatar ? (
+              <div>{formik.errors.avatar}</div>
+            ) : null}
+            <DivInputForm
+              labelName="Mobile"
+              type="phone"
+              {...formik.getFieldProps("mobile")}
+            />
+            {formik.touched.mobile && formik.errors.mobile ? (
+              <div>{formik.errors.mobile}</div>
+            ) : null}
+            <DivInputForm
+              labelName="Country"
+              type="option"
+              {...formik.getFieldProps("country")}
+            />
+            {formik.touched.country && formik.errors.country ? (
+              <div>{formik.errors.country}</div>
+            ) : null}
+            <DivInputForm
+              labelName="State"
+              type="text"
+              {...formik.getFieldProps("state")}
+            />
+            {formik.touched.state && formik.errors.state ? (
+              <div>{formik.errors.state}</div>
+            ) : null}
+            <DivInputForm
+              labelName="District"
+              type="text"
+              {...formik.getFieldProps("district")}
+            />
+            {formik.touched.district && formik.errors.district ? (
+              <div>{formik.errors.district}</div>
+            ) : null}
+            <Button
+              type="submit"
+              className="px-4 py-2 my-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
+            >
+              Submit
+            </Button>
+          </form>
+        )}
+      </Formik>
     </main>
   );
 };
@@ -174,7 +214,7 @@ export const DivInputForm = ({
   }, []);
 
   return (
-    <div className="inline-flex items-center gap-2 ">
+    <div className="inline-flex gap-2 items-center">
       <label
         htmlFor={labelName.toLowerCase()}
         className="w-[100px] items-start inline-flex"
@@ -185,7 +225,7 @@ export const DivInputForm = ({
         <select
           name={labelName.toLowerCase()}
           id={labelName.toLowerCase()}
-          className="w-full p-2 border-2 border-black rounded-md"
+          className="p-2 w-full rounded-md border-2 border-black"
           // placeholder={`Enter ${labelName.toLowerCase()}`}
           required
           onChange={onChange}
@@ -204,7 +244,7 @@ export const DivInputForm = ({
           type={type}
           name={labelName.toLowerCase()}
           id={labelName.toLowerCase()}
-          className="w-full p-2 border-2 border-black rounded-md"
+          className="p-2 w-full rounded-md border-2 border-black"
           placeholder={`Enter ${labelName.toLowerCase()}`}
           required
           onChange={onChange}

@@ -80,7 +80,7 @@ const ListEmployees = ({
       </div>
 
       <Button className="my-4">
-        <Link to="/addEmployee" className="inline-flex items-center gap-2">
+        <Link to="/addEmployee" className="inline-flex gap-2 items-center">
           {" "}
           <CirclePlus size={16} />
           Add
@@ -91,6 +91,7 @@ const ListEmployees = ({
           <TableCaption>A list of your recent employees.</TableCaption>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[25 0px]">ID</TableHead>
               <TableHead className="w-[25 0px]">Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
@@ -104,13 +105,14 @@ const ListEmployees = ({
                 key={employee.id}
                 onClick={() => handleRowClick(employee.id)}
               >
+                <TableCell className="font-medium">{employee.id}</TableCell>
                 <TableCell className="font-medium">{employee.name}</TableCell>
                 <TableCell>{employee.emailId}</TableCell>
                 <TableCell>{employee.mobile}</TableCell>
                 <TableCell className="text-right">{employee.country}</TableCell>
                 <TableCell className="text-right">
                   <Button
-                    className="inline-flex items-center gap-2 px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700"
+                    className="inline-flex gap-2 items-center px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-700"
                     onClick={() => deleteEmployee(employee.id)}
                   >
                     <Trash2 size={16} />

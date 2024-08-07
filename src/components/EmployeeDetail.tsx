@@ -18,7 +18,7 @@ const EmployeeDetail = ({ employees, setEmployees }: EmployeeDetailProps) => {
   const { id } = useParams();
 
   const handleEditClick = () => {
-    navigate(`/addEmployee`, { state: { id } });
+    navigate(`/addEmployee`, { state: { employee } });
   };
 
   const deleteEmployee = async (id: number) => {
@@ -52,11 +52,11 @@ const EmployeeDetail = ({ employees, setEmployees }: EmployeeDetailProps) => {
   }, [id]);
 
   return (
-    <div className="relative flex items-center justify-center w-full h-full bg-white">
+    <div className="flex relative justify-center items-center w-full h-full bg-white">
       <Button className="absolute top-2 left-2" onClick={() => navigate(-1)}>
         <ArrowLeft size={16} />
       </Button>
-      <div className="flex flex-col items-center justify-center w-1/3 gap-2 p-8 m-auto rounded-lg shadow-lg">
+      <div className="flex flex-col gap-2 justify-center items-center p-8 m-auto w-1/3 rounded-lg shadow-lg">
         <img
           src={employee?.avatar}
           alt="Employee Image"
@@ -65,7 +65,7 @@ const EmployeeDetail = ({ employees, setEmployees }: EmployeeDetailProps) => {
           className="rounded-full"
         />
         <h1 className="text-2xl font-bold">{employee?.name}</h1>
-        <div className="flex flex-col items-start gap-4">
+        <div className="flex flex-col gap-4 items-start">
           <p className="text-sm"> ID: {id}</p>
           <p className="text-sm">Email: {employee?.emailId}</p>
           <p className="text-sm">Mobile: {employee?.mobile}</p>
@@ -74,9 +74,9 @@ const EmployeeDetail = ({ employees, setEmployees }: EmployeeDetailProps) => {
           <p className="text-sm">District: {employee?.district}</p>
         </div>
 
-        <div className="flex items-center gap-8 my-4">
+        <div className="flex gap-8 items-center my-4">
           <Button
-            className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-700 "
+            className="inline-flex gap-2 items-center bg-red-500 hover:bg-red-700"
             onClick={() => {
               if (employee) deleteEmployee(employee.id);
             }}
@@ -84,8 +84,8 @@ const EmployeeDetail = ({ employees, setEmployees }: EmployeeDetailProps) => {
             <Trash2 size={20} />
           </Button>
           <Button
-            className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-700"
-            onClick={() => handleEditClick(employee.id)}
+            className="inline-flex gap-2 items-center bg-blue-500 hover:bg-blue-700"
+            onClick={handleEditClick}
           >
             <Pencil size={20} />
           </Button>
