@@ -1,11 +1,12 @@
 import { Formik } from "formik";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import axios from "axios";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { useLocation, useNavigate } from "react-router-dom";
-import { COUNTRIES_URL, Employee } from "../lib/utils";
+import { Employee } from "../../lib/utils";
 import { ArrowLeft } from "lucide-react";
+import DivInputForm from "../reusable/DivInputForm";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
@@ -36,7 +37,6 @@ const AddEmployee = () => {
 
   useEffect(() => {
     if (location.state) {
-      console.log(location.state.employee);
       setInitialValues({
         name: location.state.employee.name,
         email: location.state.employee.emailId,
@@ -77,7 +77,6 @@ const AddEmployee = () => {
                   console.log(response.data);
                   alert("Employee added successfully");
                   navigate("/");
-                  // setEmployees((prev) => [...prev, response.data]);
                 })
                 .catch((error) => {
                   console.log(error);
@@ -125,7 +124,7 @@ const AddEmployee = () => {
               {...formik.getFieldProps("email")}
             />
             {formik.touched.email && formik.errors.email ? (
-              <div>{formik.errors.email}</div>
+              <div className="text-red-500">{formik.errors.email}</div>
             ) : null}
             <DivInputForm
               labelName="Avatar"
@@ -181,79 +180,3 @@ const AddEmployee = () => {
 };
 
 export default AddEmployee;
-
-export const DivInputForm = ({
-  labelName,
-  type,
-  onChange,
-  value,
-}: {
-  labelName: string;
-  type: string;
-  onChange: (e: ChangeEvent) => void;
-  onBlur: (e: ChangeEvent) => void;
-  value: string;
-}) => {
-  const [countries, setCountries] = useState([]);
-
-  const getCountriesName = () => {
-    axios
-      .get(COUNTRIES_URL)
-      .then((response) => {
-        console.log(response.data);
-        const sortedData = response.data.sort(
-          (a: { name: { common: string } }, b: { name: { common: string } }) =>
-            a.name.common.localeCompare(b.name.common)
-        );
-        setCountries(sortedData);
-      })
-      .catch((error) => console.log(error));
-  };
-
-  useEffect(() => {
-    if (type === "option") {
-      getCountriesName();
-    }
-  }, []);
-
-  return (
-    <div className="inline-flex gap-2 items-center">
-      <label
-        htmlFor={labelName.toLowerCase()}
-        className="w-[100px] items-start inline-flex"
-      >
-        {labelName}
-      </label>
-      {type === "option" ? (
-        <select
-          name={labelName.toLowerCase()}
-          id={labelName.toLowerCase()}
-          className="p-2 w-full rounded-md border-2 border-black"
-          // placeholder={`Enter ${labelName.toLowerCase()}`}
-          required
-          onChange={onChange}
-          value={value}
-        >
-          {countries
-            ? countries.map((country: { name: { common: string } }) => (
-                <option key={country.name.common} value={country.name.common}>
-                  {country.name.common}
-                </option>
-              ))
-            : null}
-        </select>
-      ) : (
-        <input
-          type={type}
-          name={labelName.toLowerCase()}
-          id={labelName.toLowerCase()}
-          className="p-2 w-full rounded-md border-2 border-black"
-          placeholder={`Enter ${labelName.toLowerCase()}`}
-          required
-          onChange={onChange}
-          value={value}
-        />
-      )}
-    </div>
-  );
-};

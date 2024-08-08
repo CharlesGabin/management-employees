@@ -8,30 +8,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "./ui/table";
-import { Button } from "./ui/button";
+} from "../ui/table";
+import { Button } from "../ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { CirclePlus, Trash2 } from "lucide-react";
-import { Employee } from "../lib/utils";
+import { Employee } from "../../lib/utils";
 
-export type ListEmployeeProps = {
-  employees: Employee[] | null;
-  setEmployees: React.Dispatch<React.SetStateAction<Employee[] | null>>;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  loading: boolean;
-  error: Error | null;
-  setError: React.Dispatch<React.SetStateAction<Error | null>>;
-};
-
-const ListEmployees = ({
-  employees,
-  setEmployees,
-  setLoading,
-  loading,
-  error,
-  setError,
-}: ListEmployeeProps) => {
+const ListEmployees = () => {
   const navigate = useNavigate();
+
+  const [employees, setEmployees] = useState<Employee[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | unknown>(null);
 
   const [search, setSearch] = useState<string | null>(null);
   const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
@@ -58,7 +46,7 @@ const ListEmployees = ({
       setEmployees(response.data);
       setLoading(false);
       setFilteredEmployees(response.data);
-    } catch (error: Error | any) {
+    } catch (error: Error | unknown) {
       console.log(error);
       setError(error);
       setLoading(false);
@@ -92,7 +80,12 @@ const ListEmployees = ({
   }, []);
 
   const handleRowClick = (id: number) => {
-    navigate(`/employee/${id}`);
+    const employee = employees?.find((employee) => employee.id === id);
+    navigate(`/employee/${id}`, {
+      state: {
+        employee,
+      },
+    });
   };
 
   if (loading)
@@ -124,6 +117,7 @@ const ListEmployees = ({
       <div>
         <Table>
           <TableCaption>A list of your recent employees.</TableCaption>
+
           <TableHeader>
             <TableRow>
               <TableHead className="w-[25 0px]">ID</TableHead>
